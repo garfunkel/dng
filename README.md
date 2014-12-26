@@ -5,4 +5,4 @@ dng - Damn Negative Gearing
 
 Information portal app for real estate properties.
 
-[API Documentation](http://godoc.org/github.com/garfunkel/go-dng)
+[API Documentation](http://godoc.org/github.com/garfunkel/dng)
