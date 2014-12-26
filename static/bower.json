@@ -1,0 +1,15 @@
+{
+  "name": "DamnNegativeGearing",
+  "version": "0.0.0",
+  "authors": [
+    "Simon Allen <simon@simonallen.org>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
