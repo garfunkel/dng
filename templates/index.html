@@ -3,123 +3,15 @@
 		<script src="/static/bower_components/jQuery/dist/jquery.min.js"></script>
 		<script src="/static/bower_components/webcomponentsjs/webcomponents.min.js"></script>
 		<link rel="import" href="/static/bower_components/polymer/polymer.html">
-		<link rel="import" href="/static/bower_components/core-header-panel/core-header-panel.html">
-		<polymer-element name="DMG-app">
+		<link rel="import" href="/static/components/dng-address.html">
+		<polymer-element name="dng-app">
 			<template>
-				<style>
-					span {
-						min-height: 1.25em;
-					}
-
-					div.fields {
-						width: 110px;
-					}
-
-					div.infoPanel {
-						margin-top: 1em;
-					}
-
-					div.infoPanelContainer {
-						width: 20%;
-					}
-
-					div.photoPanel {
-						width: 80%;
-					}
-
-					div.adslFields {
-						width: 140px;
-					}
-				</style>
 				<template repeat="{{address in model.addresses | getKeys}}">
-					<div fullbleed vertical layout style="height: 600px">
-					<core-header-panel flex>
-						<div class="core-header" style="background: #7986cb">
-							<a style="text-decoration: none; color: #ffffff" href="{{model.addresses[address].RealEstateComAuInfo.Link}}">{{address}}</a>
-						</div>
-						<div class="content" fit>
-							<template bind="{{model.addresses[address]}}">
-								<div horizontal justified layout style="width: 100%">
-									<div vertical justified layout class="infoPanelContainer">
-										<div horizontal layout class="infoPanel">
-											<div vertical layout class="fields">
-												<span>Price</span>
-												<span>Sale Type</span>
-												<span>Property Type</span>
-												<span>Train Station</span>
-												<span>But Stop</span>
-												<span>Beds</span>
-												<span>Bathrooms</span>
-												<span>Car Spaces</span>
-												<span><a href="#">NBN</a></span>
-												<span><a href="#">ADSL</a></span>
-											</div>
-											<div vertical layout class="values">
-												<span>{{RealEstateComAuInfo.PriceText}}</span>
-												<span>{{RealEstateComAuInfo.SaleType}}</span>
-												<span>{{RealEstateComAuInfo.PropertyType}}</span>
-												<span></span>
-												<span></span>
-												<span>{{RealEstateComAuInfo.Bedrooms}}</span>
-												<span>{{RealEstateComAuInfo.Bathrooms}}</span>
-												<span>{{RealEstateComAuInfo.CarSpaces}}</span>
-												<span>{{NBNInfo.servingArea.serviceStatus}}</span>
-												<span>~{{ADSLInfo.EstimatedSpeed}}kbps</span>
-											</div>
-										</div>
-										<core-header-panel flex style="margin-top: 1em; display: none">
-											<div class="core-header" style="background: #FFFF99">
-												ADSL Details
-											</div>
-											<div horizontal layout fit style="margin-top: 1em">
-												<div vertical layout class="adslFields">
-													<span>Estimated Speed</span>
-													<span>Exchange Distance</span>
-													<span>Cable Length</span>
-												</div>
-												<div vertical layout class="values">
-													<span>{{ADSLInfo.EstimatedSpeed}}kbps</span>
-													<span>{{ADSLInfo.Distance}}m</span>
-													<span>{{ADSLInfo.CableLength}}m</span>
-												</div>
-											</div>
-										</core-header-panel>
-										<core-header-panel flex style="margin-top: 1em; display: none">
-											<div class="core-header" style="background: #FFFF99">
-												NBN Details
-											</div>
-											<div horizontal layout fit style="margin-top: 1em">
-												<div vertical layout class="adslFields">
-													<span>ID</span>
-													<span>Service Status</span>
-													<span>Description</span>
-													<span>CSAID</span>
-													<span>Service Category</span>
-													<span>Service Type</span>
-												</div>
-												<div vertical layout class="values">
-													<span>{{NBNInfo.servingArea.id}}</span>
-													<span>{{NBNInfo.servingArea.serviceStatus}}</span>
-													<span>{{NBNInfo.servingArea.description}}</span>
-													<span>{{NBNInfo.servingArea.csaId}}</span>
-													<span>{{NBNInfo.servingArea.serviceCategory}}</span>
-													<span>{{NBNInfo.servingArea.serviceType}}</span>
-												</div>
-											</div>
-										</core-header-panel>
-									</div>
-									<div class="photoPanel" style="height: 100%">
-										<iframe frameBorder="0" style="height: 100%; width: 100%" src="{{MapsEmbed}}"></iframe>
-									</div>
-								</div>
-							</template>
-						</div>
-					</core-header-panel>
-					</div>
+					<dng-address address="{{address}}" data="{{model.addresses[address]}}"></dng-address>
 				</template>
 			</template>
 			<script>
-				Polymer('DMG-app', {
+				Polymer('dng-app', {
 					model: {
 						'addresses': {},
 					},
@@ -158,15 +50,9 @@
 	</head>
 	<body>
 		<div id="content" style="display: table; width: 100%">
-			<DMG-app>
+			<dng-app>
 
-			</DMG-app>
-		<!--<iframe
-    width="600"
-    height="450"
-    frameborder="0" style="border:0"
-    src="https://www.google.com/maps/embed/v1/directions?key=AIzaSyA3MwX44sH8hw4QatkEOsSbvWwRNZIF6BU&origin=-33.886649,151.1786&destination=-33.8835968,151.1914509&mode=walking">
-  </iframe>-->
+			</dng-app>
 		</div>
 	</body>
 </html>

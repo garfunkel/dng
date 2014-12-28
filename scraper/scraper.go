@@ -4,9 +4,12 @@ import (
 	"errors"
 	"encoding/json"
 	"github.com/garfunkel/go-nbn"
-	"github.com/garfunkel/go-geocode"
 	"github.com/garfunkel/go-realestatecomau"
 	"github.com/garfunkel/go-adsl"
+	"github.com/garfunkel/go-google/maps"
+	"github.com/garfunkel/go-google/maps/geocoding"
+	"github.com/garfunkel/go-google/maps/places/nearbysearch"
+	"github.com/garfunkel/go-google/maps/distancematrix"
 	"github.com/boltdb/bolt"
 	"fmt"
 	"net/url"
@@ -15,15 +18,117 @@ import (
 
 const (
 	DBPath = "dng.db"
-	MapsEmbedURL = "https://www.google.com/maps/embed/v1/place?key=%v&q=%v&zoom=12"
+	MapsEmbedURL = "https://www.google.com/maps/embed/v1/place?key=%v&q=%v&zoom=13"
 	GoogleAPIKey = "AIzaSyC50lfM-BNpgJMXesZ9qV4Jx6ubTMmwwxA"
 )
 
+type PublicTransportInfo struct {
+	BusStops distancematrix.Response
+	TrainStations distancematrix.Response
+}
+
+func (transportInfo *PublicTransportInfo) getBusStops(latitude, longitude float64) (err error) {
+	matrix, err := getDistanceMatrix(latitude, longitude, "bus_station")
+
+	if err != nil {
+		return
+	}
+
+	transportInfo.BusStops = *matrix
+
+	return
+} 
+
+func (transportInfo *PublicTransportInfo) getTrainStations(latitude, longitude float64) (err error) {
+	matrix, err := getDistanceMatrix(latitude, longitude, "train_station")
+
+	if err != nil {
+		return
+	}
+
+	transportInfo.TrainStations = *matrix
+
+	return
+}
+
+func getDistanceMatrix(latitude, longitude float64, nearbyType string) (matrix *distancematrix.Response, err error) {
+	nearbyRequiredParams := nearbysearch.RequiredParams{
+		APIKey: GoogleAPIKey,
+		Location: maps.LatLngLocation{
+			Latitude: latitude,
+			Longitude: longitude,
+		},
+	}
+
+	nearbyRankByParam := nearbysearch.OptionalRankByParam{
+		RankBy: "distance",
+	}
+
+	nearbyTypesParam := nearbysearch.OptionalTypesParam{
+		Types: []string{nearbyType},
+	}
+
+	nearbyResponse, err := nearbysearch.NearbySearch(&nearbyRequiredParams, &nearbyRankByParam, &nearbyTypesParam)
+
+	if err != nil {
+		return
+	}
+
+	var locations maps.Locations
+
+	for index, result := range nearbyResponse.Results {
+		locations = append(locations, result.Geometry.Location)
+
+		if index == 4 {
+			break
+		}
+	}
+
+	matrixRequiredParams := distancematrix.RequiredParams{
+		Origins: maps.Locations{maps.LatLngLocation{
+			Latitude: latitude,
+			Longitude: longitude,
+		}},
+		Destinations: locations,
+	}
+
+	matrixModeParam := distancematrix.OptionalModeParam{
+		Mode: "walking",
+	}
+
+	matrix, err = distancematrix.DistanceMatrix(&matrixRequiredParams, &matrixModeParam)
+
+	for index, result := range nearbyResponse.Results {
+		matrix.DestinationAddresses[index] = result.Name
+
+		if index == 4 {
+			break
+		}
+	}
+
+	return
+}
+
+func GetPublicTransportInfo(latitude, longitude float64) (info *PublicTransportInfo, err error) {
+	info = new(PublicTransportInfo)
+
+	err = info.getBusStops(latitude, longitude)
+
+	if err != nil {
+		return
+	}
+
+	err = info.getTrainStations(latitude, longitude)
+
+	return
+}
+
 type Scraper struct {
-	GeocodeInfo *geocode.Info
+	GeocodeInfo *geocoding.Info
 	NBNInfo *nbn.Info
 	RealEstateComAuInfo *realestatecomau.Info
 	ADSLInfo *adsl.Info
+	PublicTransportInfo *PublicTransportInfo
 	Address string
 	MapsEmbed string
 }
@@ -74,7 +179,7 @@ func (scraper *Scraper) Scrape() (err error) {
 		return tx.Bucket([]byte("addresses")).Put([]byte(scraper.Address), value)
 	})
 
-	scraper.GeocodeInfo, err = geocode.Geocode(scraper.Address)
+	scraper.GeocodeInfo, err = geocoding.Geocode(scraper.Address)
 
 	if err != nil {
 		return
@@ -112,6 +217,8 @@ func (scraper *Scraper) Scrape() (err error) {
 	}
 
 	scraper.MapsEmbed = fmt.Sprintf(MapsEmbedURL, GoogleAPIKey, url.QueryEscape(scraper.Address))
+
+	scraper.PublicTransportInfo, err = GetPublicTransportInfo(lat, lng)
 
 	return
 }

@@ -15,8 +15,8 @@ const (
 )
 
 var addresses = []string{
+	"39 Porter Road Engadine, NSW 2233",
 	"15/28A Henry Street Ashfield NSW 2131",
-	"39 Porter Road, Engadine, NSW 2233",
 	"59/47 Hampstead Road, Homebush West, NSW 2140",
 	"18/52 Parramatta Road, Homebush, NSW 2140",
 	"27/8-12 Marlborough Road Homebush West NSW 2140",

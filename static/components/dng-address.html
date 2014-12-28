@@ -1,0 +1,186 @@
+<link rel="import" href="/static/bower_components/polymer/polymer.html">
+<link rel="import" href="/static/bower_components/core-header-panel/core-header-panel.html">
+<polymer-element name="dng-address" attributes="address data">
+	<template>
+		<style>
+			span {
+				min-height: 1.25em;
+			}
+
+			div.fields {
+				width: 110px;
+			}
+
+			div.infoPanel {
+				margin-top: 1em;
+			}
+
+			div.infoPanelContainer {
+				width: 20%;
+			}
+
+			div.photoPanel {
+				width: 80%;
+			}
+
+			div.adslFields {
+				width: 140px;
+			}
+
+			a {
+				color: blue;
+			}
+
+			a:hover {
+				color: red;
+			}
+		</style>
+		<div fullbleed vertical layout style="height: 600px">
+			<core-header-panel flex>
+				<div class="core-header" style="background: #7986cb">
+					<a style="text-decoration: none; color: #ffffff" href="{{data.RealEstateComAuInfo.Link}}">{{address}}</a>
+				</div>
+				<div class="content" fit>
+					<div horizontal justified layout style="width: 100%">
+						<div vertical justified layout class="infoPanelContainer">
+							<div horizontal layout class="infoPanel">
+								<div vertical layout class="fields">
+									<span>Price</span>
+									<span>Sale Type</span>
+									<span>Property Type</span>
+									<span style="color: blue; cursor: pointer" on-click="{{trainDetails}}">Train Station</span>
+									<span style="color: blue; cursor: pointer" on-click="{{busDetails}}">But Stop</span>
+									<span>Beds</span>
+									<span>Bathrooms</span>
+									<span>Car Spaces</span>
+									<span style="color: blue; cursor: pointer" on-click="{{nbnDetails}}">NBN</span>
+									<span style="color: blue; cursor: pointer" on-click="{{adslDetails}}">ADSL</a></span>
+								</div>
+								<div vertical layout class="values">
+									<span>{{data.RealEstateComAuInfo.PriceText}}</span>
+									<span>{{data.RealEstateComAuInfo.SaleType}}</span>
+									<span>{{data.RealEstateComAuInfo.PropertyType}}</span>
+									<span>{{data.PublicTransportInfo.TrainStations.destination_addresses[0]}}</span>
+									<span>{{data.PublicTransportInfo.BusStops.destination_addresses[0]}}</span>
+									<span>{{data.RealEstateComAuInfo.Bedrooms}}</span>
+									<span>{{data.RealEstateComAuInfo.Bathrooms}}</span>
+									<span>{{data.RealEstateComAuInfo.CarSpaces}}</span>
+									<span>{{data.NBNInfo.servingArea.serviceStatus}}</span>
+									<span>~{{data.ADSLInfo.EstimatedSpeed}}kbps</span>
+								</div>
+							</div>
+							<core-header-panel flex id="busDetails" style="margin-top: 1em; display: none">
+								<div class="core-header" style="background: #FFFF99">
+									Bus Details
+								</div>
+								<div horizontal layout fit style="margin-top: 1em">
+									<div vertical layout>
+										<template repeat="{{address, index in data.PublicTransportInfo.BusStops.destination_addresses}}">
+											<div horizontal layout>
+												<span style="width: 50%; font-weight: bold">{{data.PublicTransportInfo.BusStops.rows[0].elements[index].distance.text}}</span>
+												<span style="width: 45%; font-weight: bold">{{data.PublicTransportInfo.BusStops.rows[0].elements[index].duration.text}}</span>
+											</div>
+											<span>{{address}}</span>
+											<hr style="width: 100%" />
+										</template>
+									</div>
+								</div>
+							</core-header-panel>
+							<core-header-panel flex id="trainDetails" style="margin-top: 1em; display: none">
+								<div class="core-header" style="background: #FFFF99">
+									Train Details
+								</div>
+								<div horizontal layout fit style="margin-top: 1em">
+									<div vertical layout class="trainFields" style="width: 100%">
+										<template repeat="{{address, index in data.PublicTransportInfo.TrainStations.destination_addresses}}">
+											<div horizontal layout>
+												<span style="width: 50%; font-weight: bold">{{data.PublicTransportInfo.TrainStations.rows[0].elements[index].distance.text}}</span>
+												<span style="width: 45%; font-weight: bold">{{data.PublicTransportInfo.TrainStations.rows[0].elements[index].duration.text}}</span>
+											</div>
+											<span>{{address}}</span>
+											<hr style="width: 100%" />
+										</template>
+									</div>
+								</div>
+							</core-header-panel>
+							<core-header-panel flex id="adslDetails" style="margin-top: 1em; display: none">
+								<div class="core-header" style="background: #FFFF99">
+									ADSL Details
+								</div>
+								<div horizontal layout fit style="margin-top: 1em">
+									<div vertical layout class="adslFields">
+										<span>Estimated Speed</span>
+										<span>Exchange Distance</span>
+										<span>Cable Length</span>
+									</div>
+									<div vertical layout class="values">
+										<span>{{data.ADSLInfo.EstimatedSpeed}}kbps</span>
+										<span>{{data.ADSLInfo.Distance}}m</span>
+										<span>{{data.ADSLInfo.CableLength}}m</span>
+									</div>
+								</div>
+							</core-header-panel>
+							<core-header-panel flex id="nbnDetails" style="margin-top: 1em; display: none">
+								<div class="core-header" style="background: #FFFF99">
+									NBN Details
+								</div>
+								<div horizontal layout fit style="margin-top: 1em">
+									<div vertical layout class="adslFields">
+										<span>ID</span>
+										<span>Service Status</span>
+										<span>Description</span>
+										<span>CSAID</span>
+										<span>Service Category</span>
+										<span>Service Type</span>
+									</div>
+									<div vertical layout class="values">
+										<span>{{data.NBNInfo.servingArea.id}}</span>
+										<span>{{data.NBNInfo.servingArea.serviceStatus}}</span>
+										<span>{{data.NBNInfo.servingArea.description}}</span>
+										<span>{{data.NBNInfo.servingArea.csaId}}</span>
+										<span>{{data.NBNInfo.servingArea.serviceCategory}}</span>
+										<span>{{data.NBNInfo.servingArea.serviceType}}</span>
+									</div>
+								</div>
+							</core-header-panel>
+						</div>
+						<div class="photoPanel" style="height: 100%">
+							<iframe frameBorder="0" style="height: 100%; width: 100%" src="{{data.MapsEmbed}}"></iframe>
+						</div>
+					</div>
+				</div>
+			</core-header-panel>
+		</div>
+	</template>
+	<script>
+		Polymer("dng-address", {
+			ready: function () {
+
+			},
+			busDetails: function (event, detail, sender) {
+				$(this.$.trainDetails).css('display', 'none');
+				$(this.$.adslDetails).css('display', 'none');
+				$(this.$.nbnDetails).css('display', 'none');
+				$(this.$.busDetails).css('display', 'block');
+			},
+			trainDetails: function (event, detail, sender) {
+				$(this.$.busDetails).css('display', 'none');
+				$(this.$.adslDetails).css('display', 'none');
+				$(this.$.nbnDetails).css('display', 'none');
+				$(this.$.trainDetails).css('display', 'block');
+			},
+			nbnDetails: function (event, detail, sender) {
+				$(this.$.busDetails).css('display', 'none');
+				$(this.$.trainDetails).css('display', 'none');
+				$(this.$.adslDetails).css('display', 'none');
+				$(this.$.nbnDetails).css('display', 'block');
+			},
+			adslDetails: function (event, detail, sender) {
+				$(this.$.busDetails).css('display', 'none');
+				$(this.$.trainDetails).css('display', 'none');
+				$(this.$.nbnDetails).css('display', 'none');
+				$(this.$.adslDetails).css('display', 'block');
+			}
+		});
+	</script>
+</polymer-element>
