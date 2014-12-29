@@ -7,16 +7,12 @@
 				min-height: 1.25em;
 			}
 
-			div.fields {
-				width: 110px;
-			}
-
 			div.infoPanel {
 				margin-top: 1em;
 			}
 
 			div.infoPanelContainer {
-				width: 20%;
+				width: 300px;
 			}
 
 			div.photoPanel {
@@ -43,30 +39,57 @@
 				<div class="content" fit>
 					<div horizontal justified layout style="width: 100%">
 						<div vertical justified layout class="infoPanelContainer">
-							<div horizontal layout class="infoPanel">
-								<div vertical layout class="fields">
-									<span>Price</span>
-									<span>Sale Type</span>
-									<span>Property Type</span>
-									<span style="color: blue; cursor: pointer" on-click="{{trainDetails}}">Train Station</span>
-									<span style="color: blue; cursor: pointer" on-click="{{busDetails}}">But Stop</span>
-									<span>Beds</span>
-									<span>Bathrooms</span>
-									<span>Car Spaces</span>
-									<span style="color: blue; cursor: pointer" on-click="{{nbnDetails}}">NBN</span>
-									<span style="color: blue; cursor: pointer" on-click="{{adslDetails}}">ADSL</a></span>
+							<div style="display: table" class="infoPanel">
+								<div style="display: table-row">
+									<span style="display: table-cell; width: 110px">Price</span>
+									<span style="display: table-cell">{{data.RealEstateComAuInfo.PriceText}}</span>
 								</div>
-								<div vertical layout class="values">
-									<span>{{data.RealEstateComAuInfo.PriceText}}</span>
-									<span>{{data.RealEstateComAuInfo.SaleType}}</span>
-									<span>{{data.RealEstateComAuInfo.PropertyType}}</span>
-									<span>{{data.PublicTransportInfo.TrainStations.destination_addresses[0]}}</span>
-									<span>{{data.PublicTransportInfo.BusStops.destination_addresses[0]}}</span>
-									<span>{{data.RealEstateComAuInfo.Bedrooms}}</span>
-									<span>{{data.RealEstateComAuInfo.Bathrooms}}</span>
-									<span>{{data.RealEstateComAuInfo.CarSpaces}}</span>
-									<span>{{data.NBNInfo.servingArea.serviceStatus}}</span>
-									<span>~{{data.ADSLInfo.EstimatedSpeed}}kbps</span>
+								<div style="display: table-row">
+									<span style="display: table-cell">Sale Type</span>
+									<span style="display: table-cell">{{data.RealEstateComAuInfo.SaleType}}</span>
+								</div>
+								<div style="display: table-row">
+									<span style="display: table-cell">Property Type</span>
+									<span style="display: table-cell">{{data.RealEstateComAuInfo.PropertyType}}</span>
+								</div>
+								<div style="display: table-row">
+									<span style="color: blue; cursor: pointer" on-click="{{trainDetails}}">Train Station</span>
+									<span style="display: table-cell">{{data.PublicTransportInfo.TrainStations.destination_addresses[0]}}</span>
+								</div>
+								<div style="display: table-row">
+									<span style="color: blue; cursor: pointer" on-click="{{busDetails}}">But Stop</span>
+									<span style="display: table-cell">{{data.PublicTransportInfo.BusStops.destination_addresses[0]}}</span>
+								</div>
+								<div style="display: table-row">
+									<span style="display: table-cell">Beds</span>
+									<span style="display: table-cell">{{data.RealEstateComAuInfo.Bedrooms}}</span>
+								</div>
+								<div style="display: table-row">
+									<span style="display: table-cell">Bathrooms</span>
+									<span style="display: table-cell">{{data.RealEstateComAuInfo.Bathrooms}}</span>
+								</div>
+								<div style="display: table-row">
+									<span style="display: table-cell">Car Spaces</span>
+									<span style="display: table-cell">{{data.RealEstateComAuInfo.CarSpaces}}</span>
+								</div>
+								<div style="display: table-row">
+									<span style="display: table-cell; color: blue; cursor: pointer" on-click="{{nbnDetails}}">NBN</span>
+									<span style="display: table-cell">{{data.NBNInfo.servingArea.serviceStatus}}</span>
+								</div>
+								<div style="display: table-row">
+									<span style="display: table-cell; color: blue; cursor: pointer" on-click="{{adslDetails}}">ADSL</a></span>
+									<span style="display: table-cell">~{{data.ADSLInfo.EstimatedSpeed}}kbps</span>
+								</div>
+								<div style="display: table-row">
+									<span style="display: table-cell; color: blue; cursor: pointer" on-click="{{photoDetails}}">Photos</span>
+									<span style="display: table-cell">{{data.RealEstateComAuInfo.Photos.length}}</span>
+								</div>
+								<div style="display: table-row">
+									<span style="display: table-cell; color: blue; cursor: pointer" on-click="{{floorPlanDetails}}">Floor Plans</span>
+									<span style="display: table-cell">{{data.RealEstateComAuInfo.FloorPlans.length}}</span>
+								</div>
+								<div style="display: table-row">
+									<span style="display: table-cell; color: blue; cursor: pointer" on-click="{{notes}}">Notes</span>
 								</div>
 							</div>
 							<core-header-panel flex id="busDetails" style="margin-top: 1em; display: none">
@@ -143,9 +166,44 @@
 									</div>
 								</div>
 							</core-header-panel>
+							<core-header-panel flex id="photoDetails" style="margin-top: 1em; display: none">
+								<div class="core-header" style="background: #FFFF99">
+									Photos
+								</div>
+								<div horizontal layout style="margin-top: 5px">
+									<div vertical layout class="photoFields">
+										<template repeat="{{photo in data.RealEstateComAuInfo.Photos}}">
+											<a href="data:image/jpg;base64,{{photo.Data}}" target="_blank"><img style="margin: 5px 0; width: 100%" src="data:image/jpg;base64,{{photo.Data}}" /></a>
+										</template>
+									</div>
+								</div>
+							</core-header-panel>
+							<core-header-panel flex id="floorPlanDetails" style="margin-top: 1em; display: none">
+								<div class="core-header" style="background: #FFFF99">
+									Floor Plans
+								</div>
+								<div horizontal layout style="margin-top: 5px">
+									<div vertical layout class="floorPlanFields">
+										<template repeat="{{photo in data.RealEstateComAuInfo.FloorPlans}}">
+											<a href="data:image/jpg;base64,{{photo.Data}}" target="_blank"><img style="margin: 5px 0; width: 100%" src="data:image/jpg;base64,{{photo.Data}}" /></a>
+										</template>
+									</div>
+								</div>
+							</core-header-panel>
+							<core-header-panel flex id="notes" style="margin-top: 1em; display: none">
+								<div class="core-header" style="background: #FFFF99">
+									Notes
+									<span style="float: right; color: blue; cursor: pointer" on-click="{{saveNotes}}">Save</span>
+								</div>
+								<div horizontal layout style="margin-top: 1em">
+									<div style="width: 100%">
+										<textarea style="display: block; margin: 0 auto; width: 95%; height: 250px; font-size: 1em">{{data.Notes}}</textarea>
+									</div>
+								</div>
+							</core-header-panel>
 						</div>
 						<div class="photoPanel" style="height: 100%">
-							<iframe frameBorder="0" style="height: 100%; width: 100%" src="{{data.MapsEmbed}}"></iframe>
+							<iframe frameBorder="0" style="height: 100%; width: 100%" src="{{MapsEmbed}}"></iframe>
 						</div>
 					</div>
 				</div>
@@ -158,28 +216,57 @@
 
 			},
 			busDetails: function (event, detail, sender) {
-				$(this.$.trainDetails).css('display', 'none');
-				$(this.$.adslDetails).css('display', 'none');
-				$(this.$.nbnDetails).css('display', 'none');
+				this.clearDetails();
+
 				$(this.$.busDetails).css('display', 'block');
 			},
 			trainDetails: function (event, detail, sender) {
-				$(this.$.busDetails).css('display', 'none');
-				$(this.$.adslDetails).css('display', 'none');
-				$(this.$.nbnDetails).css('display', 'none');
+				this.clearDetails();
+
 				$(this.$.trainDetails).css('display', 'block');
 			},
 			nbnDetails: function (event, detail, sender) {
-				$(this.$.busDetails).css('display', 'none');
-				$(this.$.trainDetails).css('display', 'none');
-				$(this.$.adslDetails).css('display', 'none');
+				this.clearDetails();
+
 				$(this.$.nbnDetails).css('display', 'block');
 			},
 			adslDetails: function (event, detail, sender) {
+				this.clearDetails();
+
+				$(this.$.adslDetails).css('display', 'block');
+			},
+			photoDetails: function (event, detail, sender) {
+				this.clearDetails();
+
+				$(this.$.photoDetails).css('display', 'block');
+			},
+			floorPlanDetails: function (event, detail, sender) {
+				this.clearDetails();
+
+				$(this.$.floorPlanDetails).css('display', 'block');
+			},
+			notes: function (event, detail, sender) {
+				this.clearDetails();
+
+				$(this.$.notes).css('display', 'block');
+			},
+			saveNotes: function (event, detail, sender) {
+				var val = $(this.$.notes).find('textarea').val();
+
+				$.ajax({
+					url: "/savenotes",
+					method: "post",
+					data: {'address': this.address, 'notes': val},
+				});
+			},
+			clearDetails: function() {
 				$(this.$.busDetails).css('display', 'none');
 				$(this.$.trainDetails).css('display', 'none');
 				$(this.$.nbnDetails).css('display', 'none');
-				$(this.$.adslDetails).css('display', 'block');
+				$(this.$.adslDetails).css('display', 'none');
+				$(this.$.photoDetails).css('display', 'none');
+				$(this.$.floorPlanDetails).css('display', 'none');
+				$(this.$.notes).css('display', 'none');
 			}
 		});
 	</script>

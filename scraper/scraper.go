@@ -131,6 +131,7 @@ type Scraper struct {
 	PublicTransportInfo *PublicTransportInfo
 	Address string
 	MapsEmbed string
+	Notes string
 }
 
 var db *bolt.DB
@@ -168,8 +169,8 @@ func New(address string) (scraper *Scraper, scraped bool, err error) {
 	return
 }
 
-func (scraper *Scraper) Scrape() (err error) {
-	defer db.Update(func (tx *bolt.Tx) error {
+func (scraper *Scraper) Save() error {
+	return db.Update(func (tx *bolt.Tx) error {
 		value, err := json.Marshal(scraper)
 
 		if err != nil {
@@ -178,6 +179,10 @@ func (scraper *Scraper) Scrape() (err error) {
 
 		return tx.Bucket([]byte("addresses")).Put([]byte(scraper.Address), value)
 	})
+}
+
+func (scraper *Scraper) Scrape() (err error) {
+	defer scraper.Save()
 
 	scraper.GeocodeInfo, err = geocoding.Geocode(scraper.Address)
 
@@ -208,6 +213,12 @@ func (scraper *Scraper) Scrape() (err error) {
 
 	if err != nil {
 		log.Printf("could not get real estate info for %v", scraper.Address)
+	} else {
+		err = scraper.RealEstateComAuInfo.GetImages()
+
+		if err != nil {
+			log.Printf("could not get real estate images for %v", scraper.Address)
+		}
 	}
 
 	scraper.ADSLInfo, err = adsl.Lookup(scraper.Address)

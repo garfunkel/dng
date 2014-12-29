@@ -83,6 +83,37 @@ func refreshInfo(c chan string, address string) {
 	c <- address
 }
 
+func saveNotes(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+
+	addresses, ok := r.PostForm["address"]
+
+	if !ok || len(addresses) == 0 {
+		log.Printf("could not update notes as no address could be parsed")
+
+		return
+	}
+
+	address := addresses[0]
+	notes, ok := r.PostForm["notes"]
+
+	if !ok || len(notes) == 0 {
+		log.Printf("could not update notes for %v - no notes could be parsed", address)
+	}
+
+	scrape, _, err := scraper.New(address)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	scrape.Notes = notes[0]
+
+	if err = scrape.Save(); err != nil {
+		log.Println(err)
+	}
+}
+
 func main() {
 	refresh := flag.Bool("r", false, "refresh real estate information")
 
@@ -119,6 +150,7 @@ func main() {
 	http.HandleFunc("/", index)
 	http.HandleFunc("/addresses", getAddresses)
 	http.HandleFunc("/addressinfo", getAddressInfo)
+	http.HandleFunc("/savenotes", saveNotes)
 	http.HandleFunc("/static/", getStatic)
 
 	log.Printf("listening on http://%v:%v", host, port)
