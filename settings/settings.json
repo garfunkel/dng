@@ -1,6 +1,7 @@
 {
 	"host": "localhost",
 	"port": 8080,
+	"dbpath": "dng.db",
 	"addresses": [
 		"39 Porter Road Engadine, NSW 2233",
 		"15/28A Henry Street Ashfield NSW 2131",

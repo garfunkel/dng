@@ -11,5 +11,11 @@
     "bower_components",
     "test",
     "tests"
-  ]
+  ],
+  "dependencies": {
+    "jQuery": "~2.1.3",
+    "polymer": "~0.5.2",
+    "core-header-panel": "polymer/core-header-panel#~0.5.2",
+    "webcomponentsjs": "~0.5.2"
+  }
 }

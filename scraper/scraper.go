@@ -1,42 +1,62 @@
+// Package scraper scrapes websites and performs API calls to get info on real estate properties.
 package scraper
 
 import (
-	"errors"
-	"time"
 	"encoding/json"
+	"errors"
+	"fmt"
+	"log"
+	"net/url"
+	"time"
+	"github.com/boltdb/bolt"
 	"github.com/garfunkel/dng/settings"
-	"github.com/garfunkel/go-nbn"
-	"github.com/garfunkel/go-realestatecomau"
 	"github.com/garfunkel/go-adsl"
 	"github.com/garfunkel/go-google/maps"
+	"github.com/garfunkel/go-google/maps/distancematrix"
 	"github.com/garfunkel/go-google/maps/geocoding"
 	"github.com/garfunkel/go-google/maps/places/nearbysearch"
-	"github.com/garfunkel/go-google/maps/distancematrix"
-	"github.com/boltdb/bolt"
-	"fmt"
-	"net/url"
-	"log"
+	"github.com/garfunkel/go-nbn"
+	"github.com/garfunkel/go-realestatecomau"
 )
 
 const (
-	DBPath = "dng.db"
+	// MapsEmbedURL is the URL used to embed maps to properties.
 	MapsEmbedURL = "https://www.google.com/maps/embed/v1/place?key=%v&q=%v&zoom=13"
+
+	// GoogleAPIKey is the dng API key for Google services.
 	GoogleAPIKey = "AIzaSyC50lfM-BNpgJMXesZ9qV4Jx6ubTMmwwxA"
 )
 
-type NearbyAmenitiesInfo struct {
-	Landmarks distancematrix.Response
-	BusStops distancematrix.Response
-	TrainStations distancematrix.Response
-	Grocers distancematrix.Response
-	Cafes distancematrix.Response
-	Gyms distancematrix.Response
-	Schools distancematrix.Response
-	DepartmentStores distancematrix.Response
-	Malls distancematrix.Response
-	Bars distancematrix.Response
+// db is the package-wide DB handle.
+var db *bolt.DB
+
+// Scraper is the type containing all information scraped from property websites.
+type Scraper struct {
+	GeocodeInfo         *geocoding.Info
+	NBNInfo             *nbn.Info
+	RealEstateComAuInfo *realestatecomau.Info
+	ADSLInfo            *adsl.Info
+	NearbyAmenitiesInfo *NearbyAmenitiesInfo
+	Address             string
+	MapsEmbed           string
+	Notes               string
 }
 
+// NearbyAmenitiesInfo contains information on nearby landmarks or places of value.
+type NearbyAmenitiesInfo struct {
+	Landmarks        distancematrix.Response
+	BusStops         distancematrix.Response
+	TrainStations    distancematrix.Response
+	Grocers          distancematrix.Response
+	Cafes            distancematrix.Response
+	Gyms             distancematrix.Response
+	Schools          distancematrix.Response
+	DepartmentStores distancematrix.Response
+	Malls            distancematrix.Response
+	Bars             distancematrix.Response
+}
+
+// getLandmarks gets custom user landmark locations.
 func (nearbyInfo *NearbyAmenitiesInfo) getLandmarks(latitude, longitude float64) (err error) {
 	var landmarks maps.Locations
 
@@ -46,7 +66,7 @@ func (nearbyInfo *NearbyAmenitiesInfo) getLandmarks(latitude, longitude float64)
 
 	matrixRequiredParams := distancematrix.RequiredParams{
 		Origins: maps.Locations{maps.LatLngLocation{
-			Latitude: latitude,
+			Latitude:  latitude,
 			Longitude: longitude,
 		}},
 		Destinations: landmarks,
@@ -75,8 +95,9 @@ func (nearbyInfo *NearbyAmenitiesInfo) getLandmarks(latitude, longitude float64)
 	nearbyInfo.Landmarks = *matrix
 
 	return
-} 
+}
 
+// getBusStops gets nearest bus stops.
 func (nearbyInfo *NearbyAmenitiesInfo) getBusStops(latitude, longitude float64) (err error) {
 	matrix, err := getDistanceMatrix(latitude, longitude, "bus_station")
 
@@ -87,8 +108,9 @@ func (nearbyInfo *NearbyAmenitiesInfo) getBusStops(latitude, longitude float64) 
 	nearbyInfo.BusStops = *matrix
 
 	return
-} 
+}
 
+// getTrainStations gets nearest train stations.
 func (nearbyInfo *NearbyAmenitiesInfo) getTrainStations(latitude, longitude float64) (err error) {
 	matrix, err := getDistanceMatrix(latitude, longitude, "train_station")
 
@@ -101,6 +123,7 @@ func (nearbyInfo *NearbyAmenitiesInfo) getTrainStations(latitude, longitude floa
 	return
 }
 
+// getGrocers gets nearest grocers.
 func (nearbyInfo *NearbyAmenitiesInfo) getGrocers(latitude, longitude float64) (err error) {
 	matrix, err := getDistanceMatrix(latitude, longitude, "grocery_or_supermarket")
 
@@ -113,6 +136,7 @@ func (nearbyInfo *NearbyAmenitiesInfo) getGrocers(latitude, longitude float64) (
 	return
 }
 
+// getCafes gets nearest cafes.
 func (nearbyInfo *NearbyAmenitiesInfo) getCafes(latitude, longitude float64) (err error) {
 	matrix, err := getDistanceMatrix(latitude, longitude, "cafe")
 
@@ -125,6 +149,7 @@ func (nearbyInfo *NearbyAmenitiesInfo) getCafes(latitude, longitude float64) (er
 	return
 }
 
+// getGyms gets nearest gyms.
 func (nearbyInfo *NearbyAmenitiesInfo) getGyms(latitude, longitude float64) (err error) {
 	matrix, err := getDistanceMatrix(latitude, longitude, "gym")
 
@@ -137,6 +162,7 @@ func (nearbyInfo *NearbyAmenitiesInfo) getGyms(latitude, longitude float64) (err
 	return
 }
 
+// getSchools gets nearest schools.
 func (nearbyInfo *NearbyAmenitiesInfo) getSchools(latitude, longitude float64) (err error) {
 	matrix, err := getDistanceMatrix(latitude, longitude, "school")
 
@@ -149,6 +175,7 @@ func (nearbyInfo *NearbyAmenitiesInfo) getSchools(latitude, longitude float64) (
 	return
 }
 
+// getDepartmentStores gets nearest department stores.
 func (nearbyInfo *NearbyAmenitiesInfo) getDepartmentStores(latitude, longitude float64) (err error) {
 	matrix, err := getDistanceMatrix(latitude, longitude, "department_store")
 
@@ -161,6 +188,7 @@ func (nearbyInfo *NearbyAmenitiesInfo) getDepartmentStores(latitude, longitude f
 	return
 }
 
+// getMalls gets nearest malls.
 func (nearbyInfo *NearbyAmenitiesInfo) getMalls(latitude, longitude float64) (err error) {
 	matrix, err := getDistanceMatrix(latitude, longitude, "shopping_mall")
 
@@ -173,6 +201,7 @@ func (nearbyInfo *NearbyAmenitiesInfo) getMalls(latitude, longitude float64) (er
 	return
 }
 
+// getBars gets nearest bars.
 func (nearbyInfo *NearbyAmenitiesInfo) getBars(latitude, longitude float64) (err error) {
 	matrix, err := getDistanceMatrix(latitude, longitude, "bar")
 
@@ -185,11 +214,12 @@ func (nearbyInfo *NearbyAmenitiesInfo) getBars(latitude, longitude float64) (err
 	return
 }
 
+// getDistanceMatrix gets the closest locations of a certain type.
 func getDistanceMatrix(latitude, longitude float64, nearbyType string) (matrix *distancematrix.Response, err error) {
 	nearbyRequiredParams := nearbysearch.RequiredParams{
 		APIKey: GoogleAPIKey,
 		Location: maps.LatLngLocation{
-			Latitude: latitude,
+			Latitude:  latitude,
 			Longitude: longitude,
 		},
 	}
@@ -220,7 +250,7 @@ func getDistanceMatrix(latitude, longitude float64, nearbyType string) (matrix *
 
 	matrixRequiredParams := distancematrix.RequiredParams{
 		Origins: maps.Locations{maps.LatLngLocation{
-			Latitude: latitude,
+			Latitude:  latitude,
 			Longitude: longitude,
 		}},
 		Destinations: locations,
@@ -255,6 +285,7 @@ func getDistanceMatrix(latitude, longitude float64, nearbyType string) (matrix *
 	return
 }
 
+// GetNearbyAmenitiesInfo gets nearest locations of value (bus stops etc.)
 func GetNearbyAmenitiesInfo(latitude, longitude float64) (info *NearbyAmenitiesInfo, err error) {
 	info = new(NearbyAmenitiesInfo)
 
@@ -299,28 +330,16 @@ func GetNearbyAmenitiesInfo(latitude, longitude float64) (info *NearbyAmenitiesI
 	return
 }
 
-type Scraper struct {
-	GeocodeInfo *geocoding.Info
-	NBNInfo *nbn.Info
-	RealEstateComAuInfo *realestatecomau.Info
-	ADSLInfo *adsl.Info
-	NearbyAmenitiesInfo *NearbyAmenitiesInfo
-	Address string
-	MapsEmbed string
-	Notes string
-}
-
-var db *bolt.DB
-
+// New returns a new scraper for an address, downloading info if not already done.
 func New(address string) (scraper *Scraper, scraped bool, err error) {
 	scraper = &Scraper{
 		Address: address,
 	}
 
 	if db == nil {
-		db, err = bolt.Open("dng.db", 0666, nil)
+		db, err = bolt.Open(settings.Settings.DBPath, 0666, nil)
 
-		err = db.Update(func (tx *bolt.Tx) error {
+		err = db.Update(func(tx *bolt.Tx) error {
 			tx.CreateBucket([]byte("addresses"))
 
 			return nil
@@ -329,7 +348,7 @@ func New(address string) (scraper *Scraper, scraped bool, err error) {
 
 	var value []byte
 
-	err = db.View(func (tx *bolt.Tx) error {
+	err = db.View(func(tx *bolt.Tx) error {
 		value = tx.Bucket([]byte("addresses")).Get([]byte(address))
 
 		return nil
@@ -345,8 +364,9 @@ func New(address string) (scraper *Scraper, scraped bool, err error) {
 	return
 }
 
+// Save saves a scraper object back to the local database.
 func (scraper *Scraper) Save() error {
-	return db.Update(func (tx *bolt.Tx) error {
+	return db.Update(func(tx *bolt.Tx) error {
 		value, err := json.Marshal(scraper)
 
 		if err != nil {
@@ -357,6 +377,7 @@ func (scraper *Scraper) Save() error {
 	})
 }
 
+// Scrape scrapes various sources for real estate and location information.
 func (scraper *Scraper) Scrape() (err error) {
 	defer func() {
 		if err == nil {

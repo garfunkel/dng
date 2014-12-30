@@ -1,19 +1,22 @@
+// Package main contains the HTTP server code and driver.
 package main
 
 import (
-	"net/http"
-	"log"
 	"encoding/json"
-	"github.com/garfunkel/dng/settings"
-	"github.com/garfunkel/dng/scraper"
 	"flag"
 	"fmt"
+	"github.com/garfunkel/dng/scraper"
+	"github.com/garfunkel/dng/settings"
+	"log"
+	"net/http"
 )
 
+// index returns the index/home page.
 func index(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "templates/index.html")
 }
 
+// getAddresses returns a JSON encoded list of addresses in the DB.
 func getAddresses(w http.ResponseWriter, r *http.Request) {
 	data, err := json.Marshal(settings.Settings.Addresses)
 
@@ -24,6 +27,7 @@ func getAddresses(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 }
 
+// getAddressInfo returns information on a particular address.
 func getAddressInfo(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 
@@ -49,10 +53,12 @@ func getAddressInfo(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 }
 
+// getStatic serves static files.
 func getStatic(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "." + r.URL.Path)
+	http.ServeFile(w, r, "."+r.URL.Path)
 }
 
+// refreshInfo refreshes info for an address.
 func refreshInfo(c chan string, address string) {
 	scrape, scraped, err := scraper.New(address)
 
@@ -71,6 +77,7 @@ func refreshInfo(c chan string, address string) {
 	c <- address
 }
 
+// saveNotes saves user submitted notes for an address.
 func saveNotes(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
@@ -102,6 +109,7 @@ func saveNotes(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// main is the driver function.
 func main() {
 	refresh := flag.Bool("r", false, "refresh real estate information")
 	debug := flag.Bool("d", false, "debug mode")
@@ -132,7 +140,7 @@ func main() {
 		num := 0
 
 		for address := range c {
-			num += 1
+			num++
 
 			log.Printf("refreshed %v", address)
 
