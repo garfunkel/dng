@@ -10,6 +10,8 @@ const (
 )
 
 type settings struct {
+	Host string `json:"host"`
+	Port int `json:"port"`
 	Addresses []string `json:"addresses"`
 	Landmarks []string `json:"landmarks"`
 }

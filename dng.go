@@ -10,11 +10,6 @@ import (
 	"fmt"
 )
 
-const (
-	Host = "localhost"
-	Port = "8080"
-)
-
 func index(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "templates/index.html")
 }
@@ -109,10 +104,13 @@ func saveNotes(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	refresh := flag.Bool("r", false, "refresh real estate information")
+	debug := flag.Bool("d", false, "debug mode")
 
 	flag.Parse()
 
-	log.SetFlags(log.Ldate | log.Ltime | log.Llongfile)
+	if *debug {
+		log.SetFlags(log.Ldate | log.Ltime | log.Llongfile)
+	}
 
 	if err := settings.ReadSettings(); err != nil {
 		log.Fatal(err)
@@ -122,6 +120,8 @@ func main() {
 		log.Printf("refreshing real estate information")
 
 		c := make(chan string)
+
+		defer close(c)
 
 		for _, address := range settings.Settings.Addresses {
 			log.Printf("refreshing %v", address)
@@ -141,8 +141,6 @@ func main() {
 			}
 		}
 
-		close(c)
-
 		log.Printf("refreshed real estate information")
 	}
 
@@ -152,7 +150,7 @@ func main() {
 	http.HandleFunc("/savenotes", saveNotes)
 	http.HandleFunc("/static/", getStatic)
 
-	hostString := fmt.Sprintf("%v:%v", Host, Port)
+	hostString := fmt.Sprintf("%v:%v", settings.Settings.Host, settings.Settings.Port)
 
 	log.Printf("listening on http://%v", hostString)
 
