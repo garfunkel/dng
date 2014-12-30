@@ -1,10 +1,10 @@
 {
-  "name": "DamnNegativeGearing",
+  "name": "dng",
   "version": "0.0.0",
   "authors": [
     "Simon Allen <simon@simonallen.org>"
   ],
-  "license": "MIT",
+  "license": "GNU GPL v2.0",
   "ignore": [
     "**/.*",
     "node_modules",

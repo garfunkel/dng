@@ -3,16 +3,13 @@
 <polymer-element name="dng-address" attributes="address data">
 	<template>
 		<style>
-			span {
-				min-height: 1.25em;
-			}
-
 			div.infoPanel {
-				margin-top: 1em;
+				margin-top: 0.5em;
 			}
 
 			div.infoPanelContainer {
 				width: 300px;
+				margin-right: 5px;
 			}
 
 			div.photoPanel {
@@ -54,11 +51,11 @@
 								</div>
 								<div style="display: table-row">
 									<span style="color: blue; cursor: pointer" on-click="{{trainDetails}}">Train Station</span>
-									<span style="display: table-cell">{{data.PublicTransportInfo.TrainStations.destination_addresses[0]}}</span>
+									<span style="display: table-cell">{{data.NearbyAmenitiesInfo.TrainStations.destination_addresses[0]}}</span>
 								</div>
 								<div style="display: table-row">
 									<span style="color: blue; cursor: pointer" on-click="{{busDetails}}">But Stop</span>
-									<span style="display: table-cell">{{data.PublicTransportInfo.BusStops.destination_addresses[0]}}</span>
+									<span style="display: table-cell">{{data.NearbyAmenitiesInfo.BusStops.destination_addresses[0]}}</span>
 								</div>
 								<div style="display: table-row">
 									<span style="display: table-cell">Beds</span>
@@ -71,6 +68,9 @@
 								<div style="display: table-row">
 									<span style="display: table-cell">Car Spaces</span>
 									<span style="display: table-cell">{{data.RealEstateComAuInfo.CarSpaces}}</span>
+								</div>
+								<div style="display: table-row">
+									<span style="display: table-cell; color: blue; cursor: pointer" on-click="{{nearby}}">Nearby</span>
 								</div>
 								<div style="display: table-row">
 									<span style="display: table-cell; color: blue; cursor: pointer" on-click="{{nbnDetails}}">NBN</span>
@@ -89,19 +89,24 @@
 									<span style="display: table-cell">{{data.RealEstateComAuInfo.FloorPlans.length}}</span>
 								</div>
 								<div style="display: table-row">
+									<span style="display: table-cell; color: blue; cursor: pointer" on-click="{{inspections}}">Inspections</span>
+									<span style="display: table-cell">{{data.RealEstateComAuInfo.Inspections.length}}</span>
+								</div>
+								<div style="display: table-row">
 									<span style="display: table-cell; color: blue; cursor: pointer" on-click="{{notes}}">Notes</span>
 								</div>
 							</div>
-							<core-header-panel flex id="busDetails" style="margin-top: 1em; display: none">
+							<core-header-panel flex id="busDetails" style="margin-top: 0.5em; display: none">
 								<div class="core-header" style="background: #FFFF99">
 									Bus Details
+									<span style="float: right; color: blue; cursor: pointer" on-click="{{clearDetails}}">Close</span>
 								</div>
-								<div horizontal layout fit style="margin-top: 1em">
-									<div vertical layout>
-										<template repeat="{{address, index in data.PublicTransportInfo.BusStops.destination_addresses}}">
+								<div horizontal layout fit style="margin-top: 0.5em">
+									<div vertical layout style="width: 100%">
+										<template repeat="{{address, index in data.NearbyAmenitiesInfo.BusStops.destination_addresses}}">
 											<div horizontal layout>
-												<span style="width: 50%; font-weight: bold">{{data.PublicTransportInfo.BusStops.rows[0].elements[index].distance.text}}</span>
-												<span style="width: 45%; font-weight: bold">{{data.PublicTransportInfo.BusStops.rows[0].elements[index].duration.text}}</span>
+												<span style="width: 50%; font-weight: bold">{{data.NearbyAmenitiesInfo.BusStops.rows[0].elements[index].distance.text}}</span>
+												<span style="width: 50%; font-weight: bold">{{data.NearbyAmenitiesInfo.BusStops.rows[0].elements[index].duration.text}}</span>
 											</div>
 											<span>{{address}}</span>
 											<hr style="width: 100%" />
@@ -109,16 +114,17 @@
 									</div>
 								</div>
 							</core-header-panel>
-							<core-header-panel flex id="trainDetails" style="margin-top: 1em; display: none">
+							<core-header-panel flex id="trainDetails" style="margin-top: 0.5em; display: none">
 								<div class="core-header" style="background: #FFFF99">
 									Train Details
+									<span style="float: right; color: blue; cursor: pointer" on-click="{{clearDetails}}">Close</span>
 								</div>
-								<div horizontal layout fit style="margin-top: 1em">
+								<div horizontal layout fit style="margin-top: 0.5em">
 									<div vertical layout class="trainFields" style="width: 100%">
-										<template repeat="{{address, index in data.PublicTransportInfo.TrainStations.destination_addresses}}">
+										<template repeat="{{address, index in data.NearbyAmenitiesInfo.TrainStations.destination_addresses}}">
 											<div horizontal layout>
-												<span style="width: 50%; font-weight: bold">{{data.PublicTransportInfo.TrainStations.rows[0].elements[index].distance.text}}</span>
-												<span style="width: 45%; font-weight: bold">{{data.PublicTransportInfo.TrainStations.rows[0].elements[index].duration.text}}</span>
+												<span style="width: 50%; font-weight: bold">{{data.NearbyAmenitiesInfo.TrainStations.rows[0].elements[index].distance.text}}</span>
+												<span style="width: 50%; font-weight: bold">{{data.NearbyAmenitiesInfo.TrainStations.rows[0].elements[index].duration.text}}</span>
 											</div>
 											<span>{{address}}</span>
 											<hr style="width: 100%" />
@@ -126,11 +132,12 @@
 									</div>
 								</div>
 							</core-header-panel>
-							<core-header-panel flex id="adslDetails" style="margin-top: 1em; display: none">
+							<core-header-panel flex id="adslDetails" style="margin-top: 0.5em; display: none">
 								<div class="core-header" style="background: #FFFF99">
 									ADSL Details
+									<span style="float: right; color: blue; cursor: pointer" on-click="{{clearDetails}}">Close</span>
 								</div>
-								<div horizontal layout fit style="margin-top: 1em">
+								<div horizontal layout fit style="margin-top: 0.5em">
 									<div vertical layout class="adslFields">
 										<span>Estimated Speed</span>
 										<span>Exchange Distance</span>
@@ -143,11 +150,12 @@
 									</div>
 								</div>
 							</core-header-panel>
-							<core-header-panel flex id="nbnDetails" style="margin-top: 1em; display: none">
+							<core-header-panel flex id="nbnDetails" style="margin-top: 0.5em; display: none">
 								<div class="core-header" style="background: #FFFF99">
 									NBN Details
+									<span style="float: right; color: blue; cursor: pointer" on-click="{{clearDetails}}">Close</span>
 								</div>
-								<div horizontal layout fit style="margin-top: 1em">
+								<div horizontal layout fit style="margin-top: 0.5em">
 									<div vertical layout class="adslFields">
 										<span>ID</span>
 										<span>Service Status</span>
@@ -166,9 +174,10 @@
 									</div>
 								</div>
 							</core-header-panel>
-							<core-header-panel flex id="photoDetails" style="margin-top: 1em; display: none">
+							<core-header-panel flex id="photoDetails" style="margin-top: 0.5em; display: none">
 								<div class="core-header" style="background: #FFFF99">
 									Photos
+									<span style="float: right; color: blue; cursor: pointer" on-click="{{clearDetails}}">Close</span>
 								</div>
 								<div horizontal layout style="margin-top: 5px">
 									<div vertical layout class="photoFields">
@@ -178,9 +187,10 @@
 									</div>
 								</div>
 							</core-header-panel>
-							<core-header-panel flex id="floorPlanDetails" style="margin-top: 1em; display: none">
+							<core-header-panel flex id="floorPlanDetails" style="margin-top: 0.5em; display: none">
 								<div class="core-header" style="background: #FFFF99">
 									Floor Plans
+									<span style="float: right; color: blue; cursor: pointer" on-click="{{clearDetails}}">Close</span>
 								</div>
 								<div horizontal layout style="margin-top: 5px">
 									<div vertical layout class="floorPlanFields">
@@ -190,20 +200,155 @@
 									</div>
 								</div>
 							</core-header-panel>
-							<core-header-panel flex id="notes" style="margin-top: 1em; display: none">
+							<core-header-panel flex id="notes" style="margin-top: 0.5em; display: none">
 								<div class="core-header" style="background: #FFFF99">
 									Notes
+									<span style="float: right; color: blue; cursor: pointer; margin-left: 1em" on-click="{{clearDetails}}">Close</span>
 									<span style="float: right; color: blue; cursor: pointer" on-click="{{saveNotes}}">Save</span>
 								</div>
-								<div horizontal layout style="margin-top: 1em">
+								<div horizontal layout style="margin-top: 0.5em">
 									<div style="width: 100%">
-										<textarea style="display: block; margin: 0 auto; width: 95%; height: 250px; font-size: 1em">{{data.Notes}}</textarea>
+										<textarea style="display: block; margin: 0 auto; width: 95%; height: 250px; font-size: 0.5em">{{data.Notes}}</textarea>
+									</div>
+								</div>
+							</core-header-panel>
+							<core-header-panel flex id="inspections" style="margin-top: 0.5em; display: none">
+								<div class="core-header" style="background: #FFFF99">
+									Inspections
+									<span style="float: right; color: blue; cursor: pointer" on-click="{{clearDetails}}">Close</span>
+								</div>
+								<div vertical layout fit style="margin-top: 0.5em">
+									<template repeat="{{inspection in data.RealEstateComAuInfo.Inspections}}">
+										<div horizontal layout>
+											<span style="width: 140px">{{inspection.Date}}</span>
+											<span>{{inspection.Time}}</span>
+										</div>
+									</template>
+								</div>
+							</core-header-panel>
+							<core-header-panel flex id="nearby" style="margin-top: 0.5em; display: none">
+								<div class="core-header" style="background: #FFFF99">
+									Nearby Amenities
+									<span style="float: right; color: blue; cursor: pointer" on-click="{{clearDetails}}">Close</span>
+								</div>
+								<div vertical layout flex style="margin-top: 0.5em">
+									<div vertical layout style+"width: 100%">
+										<span style="font-weight: bold; font-size: 1.25em">Landmarks</span>
+										<hr style="width: 100%" />
+										<div vertical layout style="; margin-left: 30px; width: 100%">
+											<template repeat="{{address, index in data.NearbyAmenitiesInfo.Landmarks.destination_addresses}}">
+												<div horizontal layout>
+														<span style="width: 50%; font-weight: bold">{{data.NearbyAmenitiesInfo.Landmarks.rows[0].elements[index].distance.text}}</span>
+														<span style="width: 50%; font-weight: bold">{{data.NearbyAmenitiesInfo.Landmarks.rows[0].elements[index].duration.text}}</span>
+													</div>
+												<span>{{address}}</span>
+												<hr style="width: 100%" />
+											</template>
+										</div>
+									</div>
+									<div vertical layout style+"width: 100%">
+										<span style="font-weight: bold; font-size: 1.25em">Grocers</span>
+										<hr style="width: 100%" />
+										<div vertical layout style="; margin-left: 30px; width: 100%">
+											<template repeat="{{address, index in data.NearbyAmenitiesInfo.Grocers.destination_addresses}}">
+												<div horizontal layout>
+														<span style="width: 50%; font-weight: bold">{{data.NearbyAmenitiesInfo.Grocers.rows[0].elements[index].distance.text}}</span>
+														<span style="width: 50%; font-weight: bold">{{data.NearbyAmenitiesInfo.Grocers.rows[0].elements[index].duration.text}}</span>
+													</div>
+												<span>{{address}}</span>
+												<hr style="width: 100%" />
+											</template>
+										</div>
+									</div>
+									<div vertical layout style+"width: 100%">
+										<span style="font-weight: bold; font-size: 1.25em">Cafes</span>
+										<hr style="width: 100%" />
+										<div vertical layout style="; margin-left: 30px; width: 100%">
+											<template repeat="{{address, index in data.NearbyAmenitiesInfo.Cafes.destination_addresses}}">
+												<div horizontal layout>
+														<span style="width: 50%; font-weight: bold">{{data.NearbyAmenitiesInfo.Cafes.rows[0].elements[index].distance.text}}</span>
+														<span style="width: 50%; font-weight: bold">{{data.NearbyAmenitiesInfo.Cafes.rows[0].elements[index].duration.text}}</span>
+													</div>
+												<span>{{address}}</span>
+												<hr style="width: 100%" />
+											</template>
+										</div>
+									</div>
+									<div vertical layout style+"width: 100%">
+										<span style="font-weight: bold; font-size: 1.25em">Gyms</span>
+										<hr style="width: 100%" />
+										<div vertical layout style="; margin-left: 30px; width: 100%">
+											<template repeat="{{address, index in data.NearbyAmenitiesInfo.Gyms.destination_addresses}}">
+												<div horizontal layout>
+														<span style="width: 50%; font-weight: bold">{{data.NearbyAmenitiesInfo.Gyms.rows[0].elements[index].distance.text}}</span>
+														<span style="width: 50%; font-weight: bold">{{data.NearbyAmenitiesInfo.Gyms.rows[0].elements[index].duration.text}}</span>
+													</div>
+												<span>{{address}}</span>
+												<hr style="width: 100%" />
+											</template>
+										</div>
+									</div>
+									<div vertical layout style+"width: 100%">
+										<span style="font-weight: bold; font-size: 1.25em">Schools</span>
+										<hr style="width: 100%" />
+										<div vertical layout style="; margin-left: 30px; width: 100%">
+											<template repeat="{{address, index in data.NearbyAmenitiesInfo.Schools.destination_addresses}}">
+												<div horizontal layout>
+														<span style="width: 50%; font-weight: bold">{{data.NearbyAmenitiesInfo.Schools.rows[0].elements[index].distance.text}}</span>
+														<span style="width: 50%; font-weight: bold">{{data.NearbyAmenitiesInfo.Schools.rows[0].elements[index].duration.text}}</span>
+													</div>
+												<span>{{address}}</span>
+												<hr style="width: 100%" />
+											</template>
+										</div>
+									</div>
+									<div vertical layout style+"width: 100%">
+										<span style="font-weight: bold; font-size: 1.25em">Department Stores</span>
+										<hr style="width: 100%" />
+										<div vertical layout style="; margin-left: 30px; width: 100%">
+											<template repeat="{{address, index in data.NearbyAmenitiesInfo.DepartmentStores.destination_addresses}}">
+												<div horizontal layout>
+														<span style="width: 50%; font-weight: bold">{{data.NearbyAmenitiesInfo.DepartmentStores.rows[0].elements[index].distance.text}}</span>
+														<span style="width: 50%; font-weight: bold">{{data.NearbyAmenitiesInfo.DepartmentStores.rows[0].elements[index].duration.text}}</span>
+													</div>
+												<span>{{address}}</span>
+												<hr style="width: 100%" />
+											</template>
+										</div>
+									</div>
+									<div vertical layout style+"width: 100%">
+										<span style="font-weight: bold; font-size: 1.25em">Shopping Malls</span>
+										<hr style="width: 100%" />
+										<div vertical layout style="; margin-left: 30px; width: 100%">
+											<template repeat="{{address, index in data.NearbyAmenitiesInfo.Malls.destination_addresses}}">
+												<div horizontal layout>
+														<span style="width: 50%; font-weight: bold">{{data.NearbyAmenitiesInfo.Malls.rows[0].elements[index].distance.text}}</span>
+														<span style="width: 50%; font-weight: bold">{{data.NearbyAmenitiesInfo.Malls.rows[0].elements[index].duration.text}}</span>
+													</div>
+												<span>{{address}}</span>
+												<hr style="width: 100%" />
+											</template>
+										</div>
+									</div>
+									<div vertical layout style+"width: 100%">
+										<span style="font-weight: bold; font-size: 1.25em">Bars</span>
+										<hr style="width: 100%" />
+										<div vertical layout style="; margin-left: 30px; width: 100%">
+											<template repeat="{{address, index in data.NearbyAmenitiesInfo.Bars.destination_addresses}}">
+												<div horizontal layout>
+														<span style="width: 50%; font-weight: bold">{{data.NearbyAmenitiesInfo.Bars.rows[0].elements[index].distance.text}}</span>
+														<span style="width: 50%; font-weight: bold">{{data.NearbyAmenitiesInfo.Bars.rows[0].elements[index].duration.text}}</span>
+													</div>
+												<span>{{address}}</span>
+												<hr style="width: 100%" />
+											</template>
+										</div>
 									</div>
 								</div>
 							</core-header-panel>
 						</div>
 						<div class="photoPanel" style="height: 100%">
-							<iframe frameBorder="0" style="height: 100%; width: 100%" src="{{MapsEmbed}}"></iframe>
+							<iframe frameBorder="0" style="height: 100%; width: 100%" src="{{data.MapsEmbed}}"></iframe>
 						</div>
 					</div>
 				</div>
@@ -259,6 +404,16 @@
 					data: {'address': this.address, 'notes': val},
 				});
 			},
+			inspections: function (event, detail, sender) {
+				this.clearDetails();
+
+				$(this.$.inspections).css('display', 'block');
+			},
+			nearby: function (event, detail, sender) {
+				this.clearDetails();
+
+				$(this.$.nearby).css('display', 'block');
+			},
 			clearDetails: function() {
 				$(this.$.busDetails).css('display', 'none');
 				$(this.$.trainDetails).css('display', 'none');
@@ -267,6 +422,8 @@
 				$(this.$.photoDetails).css('display', 'none');
 				$(this.$.floorPlanDetails).css('display', 'none');
 				$(this.$.notes).css('display', 'none');
+				$(this.$.inspections).css('display', 'none');
+				$(this.$.nearby).css('display', 'none');
 			}
 		});
 	</script>

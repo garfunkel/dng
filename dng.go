@@ -4,34 +4,23 @@ import (
 	"net/http"
 	"log"
 	"encoding/json"
+	"github.com/garfunkel/dng/settings"
 	"github.com/garfunkel/dng/scraper"
 	"flag"
 	"fmt"
 )
 
 const (
-	host = "localhost"
-	port = "8080"
+	Host = "localhost"
+	Port = "8080"
 )
-
-var addresses = []string{
-	"39 Porter Road Engadine, NSW 2233",
-	"15/28A Henry Street Ashfield NSW 2131",
-	"59/47 Hampstead Road, Homebush West, NSW 2140",
-	"18/52 Parramatta Road, Homebush, NSW 2140",
-	"27/8-12 Marlborough Road Homebush West NSW 2140",
-	"4/63 Gipps St, Drummoyne, NSW 2047",
-	"18/19 Johnston Street Annandale",
-	"43/29-45 Parramatta Road, Concord, NSW 2137",
-	"4/421 Liverpool Road, Ashfield, NSW 2131",
-}
 
 func index(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "templates/index.html")
 }
 
 func getAddresses(w http.ResponseWriter, r *http.Request) {
-	data, err := json.Marshal(addresses)
+	data, err := json.Marshal(settings.Settings.Addresses)
 
 	if err != nil {
 		log.Fatal(err)
@@ -77,7 +66,11 @@ func refreshInfo(c chan string, address string) {
 	}
 
 	if !scraped {
-		scrape.Scrape()
+		err = scrape.Scrape()
+
+		if err != nil {
+			log.Println(err)
+		}
 	}
 
 	c <- address
@@ -119,12 +112,18 @@ func main() {
 
 	flag.Parse()
 
+	log.SetFlags(log.Ldate | log.Ltime | log.Llongfile)
+
+	if err := settings.ReadSettings(); err != nil {
+		log.Fatal(err)
+	}
+
 	if *refresh {
 		log.Printf("refreshing real estate information")
 
 		c := make(chan string)
 
-		for _, address := range addresses {
+		for _, address := range settings.Settings.Addresses {
 			log.Printf("refreshing %v", address)
 
 			go refreshInfo(c, address)
@@ -137,7 +136,7 @@ func main() {
 
 			log.Printf("refreshed %v", address)
 
-			if num == len(addresses) {
+			if num == len(settings.Settings.Addresses) {
 				break
 			}
 		}
@@ -153,7 +152,9 @@ func main() {
 	http.HandleFunc("/savenotes", saveNotes)
 	http.HandleFunc("/static/", getStatic)
 
-	log.Printf("listening on http://%v:%v", host, port)
+	hostString := fmt.Sprintf("%v:%v", Host, Port)
 
-	log.Fatal(http.ListenAndServe(fmt.Sprintf("%v:%v", host, port), nil))
+	log.Printf("listening on http://%v", hostString)
+
+	log.Fatal(http.ListenAndServe(hostString, nil))
 }
