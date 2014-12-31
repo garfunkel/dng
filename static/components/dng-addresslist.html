@@ -1,0 +1,44 @@
+<script src="/static/bower_components/jQuery/dist/jquery.min.js"></script>
+<script src="/static/bower_components/webcomponentsjs/webcomponents.min.js"></script>
+<link rel="import" href="/static/bower_components/polymer/polymer.html">
+<link rel="import" href="/static/components/dng-address.html">
+<polymer-element name="dng-addresslist">
+	<template>
+		<template repeat="{{address in model.addresses | getKeys}}">
+			<dng-address address="{{address}}" data="{{model.addresses[address]}}"></dng-address>
+		</template>
+	</template>
+	<script>
+		Polymer('dng-addresslist', {
+			model: {
+				'addresses': {},
+			},
+			ready: function() {
+				this.updateAddresses();
+			},
+			updateAddresses: function() {
+				var element = this;
+
+				$.getJSON('/addresses', function(data) {
+					element.model.addresses = {};
+
+					$.each(data, function(index, address) {
+						element.model.addresses[address] = {};
+
+						element.getAddressInfo(address);
+					});
+				});
+			},
+			getAddressInfo: function(address) {
+				var element = this;
+
+				$.getJSON('/addressinfo', {'address': address}, function(data) {
+					element.model.addresses[address] = data;
+				});
+			},
+			getKeys: function(o) {
+				return Object.keys(o);
+			},
+		});
+	</script>
+</polymer-element>

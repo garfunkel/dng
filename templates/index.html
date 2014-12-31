@@ -1,56 +1,11 @@
 <html>
 	<head>
-		<script src="/static/bower_components/jQuery/dist/jquery.min.js"></script>
-		<script src="/static/bower_components/webcomponentsjs/webcomponents.min.js"></script>
-		<link rel="import" href="/static/bower_components/polymer/polymer.html">
-		<link rel="import" href="/static/components/dng-address.html">
-		<polymer-element name="dng-app">
-			<template>
-				<template repeat="{{address in model.addresses | getKeys}}">
-					<dng-address address="{{address}}" data="{{model.addresses[address]}}"></dng-address>
-				</template>
-			</template>
-			<script>
-				Polymer('dng-app', {
-					model: {
-						'addresses': {},
-					},
-					ready: function() {
-						this.updateAddresses();
-					},
-					observe: {
-
-					},
-					updateAddresses: function() {
-						var element = this;
-
-						$.getJSON('/addresses', function(data) {
-							element.model.addresses = {};
-
-							$.each(data, function(index, address) {
-								element.model.addresses[address] = {};
-
-								element.getAddressInfo(address);
-							});
-						});
-					},
-					getAddressInfo: function(address) {
-						var element = this;
-
-						$.getJSON('/addressinfo', {'address': address}, function(data) {
-							element.model.addresses[address] = data;
-						});
-					},
-					getKeys: function(o) {
-						return Object.keys(o);
-					},
-				});
-			</script>
-		</polymer-element>
+		<link rel="import" href="/static/components/dng-addresslist.html">
+		<title>Damn Negative Gearing</title>
 	</head>
 	<body>
 		<div id="content" style="display: table; width: 100%">
-			<dng-app></dng-app>
+			<dng-addresslist></dng-addresslist>
 		</div>
 	</body>
 </html>
