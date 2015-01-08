@@ -413,7 +413,7 @@ func (scraper *Scraper) Scrape() (err error) {
 	scraper.RealEstateComAuInfo, err = realestatecomau.GetInfo(scraper.Address)
 
 	if err != nil {
-		log.Printf("could not get real estate info for %v", scraper.Address)
+		log.Printf("could not get real estate info for %v: %v", scraper.Address, err)
 	} else {
 		err = scraper.RealEstateComAuInfo.GetImages()
 

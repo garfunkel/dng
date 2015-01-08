@@ -3,14 +3,15 @@
 	"port": 8080,
 	"dbpath": "dng.db",
 	"addresses": [
-		"39 Porter Road Engadine, NSW 2233",
-		"15/28A Henry Street Ashfield NSW 2131",
-		"59/47 Hampstead Road, Homebush West, NSW 2140",
-		"18/52 Parramatta Road, Homebush, NSW 2140",
-		"27/8-12 Marlborough Road Homebush West NSW 2140",
-		"4/63 Gipps St, Drummoyne, NSW 2047",
-		"18/19 Johnston Street Annandale",
-		"4/421 Liverpool Road, Ashfield, NSW 2131"
+		"8/48 Windsor Avenue Croydon Park NSW 2133",
+		"20/167-173 Parramatta Rd North Strathfield NSW 2137",
+		"4/421 Liverpool Road Ashfield NSW 2131",
+		"6/59 Tebbutt Street Leichhardt NSW 2040",
+		"564-570 Liverpool Road Strathfield South NSW 2136",
+		"6/11-13 Homebush Road Strathfield NSW 2135",
+		"8/62 Kings Road Five Dock NSW 2046",
+		"23-25 Churchill Avenue Strathfield NSW 2135",
+		"3-7 Burwood Road Burwood NSW 2134"
 	],
 	"landmarks": [
 		"Town Hall, Sydney NSW 2000, Australia"
