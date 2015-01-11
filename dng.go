@@ -59,22 +59,16 @@ func getStatic(w http.ResponseWriter, r *http.Request) {
 }
 
 // refreshInfo refreshes info for an address.
-func refreshInfo(c chan string, address string) {
+func refreshInfo(address string) {
 	scrape, scraped, err := scraper.New(address)
 
 	if err != nil {
 		log.Println(err)
-	}
-
-	if !scraped {
-		err = scrape.Scrape()
-
-		if err != nil {
+	} else if !scraped {
+		if err = scrape.Scrape(); err != nil {
 			log.Println(err)
 		}
 	}
-
-	c <- address
 }
 
 // saveNotes saves user submitted notes for an address.
@@ -125,31 +119,29 @@ func main() {
 	}
 
 	if *refresh {
-		log.Printf("refreshing real estate information")
+		log.Printf("refreshing all real estate information")
 
-		c := make(chan string)
+		c := make(chan bool)
 
 		defer close(c)
 
-		for _, address := range settings.Settings.Addresses {
-			log.Printf("refreshing %v", address)
+		for addressIndex, address := range settings.Settings.Addresses {
+			go func (addressIndex int, address string) {
+				log.Printf("refreshing %v", address)
 
-			go refreshInfo(c, address)
+				refreshInfo(address)
+
+				log.Printf("refreshed %v", address)
+
+				c <- true
+			}(addressIndex, address)
 		}
 
-		num := 0
-
-		for address := range c {
-			num++
-
-			log.Printf("refreshed %v", address)
-
-			if num == len(settings.Settings.Addresses) {
-				break
-			}
+		for range settings.Settings.Addresses {
+			<- c
 		}
 
-		log.Printf("refreshed real estate information")
+		log.Printf("refreshed all real estate information")
 	}
 
 	http.HandleFunc("/", index)
