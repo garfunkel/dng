@@ -17,6 +17,7 @@ import (
 	"github.com/garfunkel/go-google/maps/places/nearbysearch"
 	"github.com/garfunkel/go-nbn"
 	"github.com/garfunkel/go-realestatecomau"
+	"sync"
 )
 
 const (
@@ -29,6 +30,7 @@ const (
 
 // db is the package-wide DB handle.
 var db *bolt.DB
+var dbMutex sync.Mutex
 
 // Scraper is the type containing all information scraped from property websites.
 type Scraper struct {
@@ -336,6 +338,8 @@ func New(address string) (scraper *Scraper, scraped bool, err error) {
 		Address: address,
 	}
 
+	dbMutex.Lock()
+
 	if db == nil {
 		db, err = bolt.Open(settings.Settings.DBPath, 0666, nil)
 
@@ -345,6 +349,8 @@ func New(address string) (scraper *Scraper, scraped bool, err error) {
 			return nil
 		})
 	}
+
+	dbMutex.Unlock()
 
 	var value []byte
 
